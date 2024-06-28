@@ -1,0 +1,1 @@
+Show number of pots.
