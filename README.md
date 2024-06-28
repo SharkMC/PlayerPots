@@ -1,1 +1,1 @@
-Show number of pots.
+Show pots.
