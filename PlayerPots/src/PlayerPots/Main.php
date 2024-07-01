@@ -5,9 +5,11 @@ namespace PlayerPots;
 use pocketmine\plugin\PluginBase;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerDeathEvent;
+use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\item\Item;
 use pocketmine\item\ItemTypeIds;
 use pocketmine\player\Player;
+use pocketmine\Server;
 
 class Main extends PluginBase implements Listener {
 
@@ -22,14 +24,24 @@ class Main extends PluginBase implements Listener {
     }
 
     public function onDeath(PlayerDeathEvent $event) {
-        $player = $event->getEntity();
-        $killer = $player->getLastDamageCause()->getDamager();
-
-        if ($killer instanceof Player) {
+        /**@var Player $player */
+        $player = $event->getPlayer();
+        $cause = $player->getLastDamageCause();
+        if (!$cause instanceof EntityDamageByEntityEvent) {
+            return;
+        }
+        if ($player instanceof Player) {
+            /**@var Player $killer */
+            $killer = $cause->getDamager();
             $potskiller = $this->getPotions($killer);
             $potsplayer = $this->getPotions($player);
 
             $event->setDeathMessage("§a" . $killer->getName() . "§2[" . $potskiller . "]" . "§7 killed " . "§c" . $player->getName() . "§4[" . $potsplayer . "]§r");
+        }
+        else {
+            $this->getServer()->broadcastMessage("§e§lOMG");
+            $event->setDeathMessage("");
+            $event->setXpDropAmount(0);
         }
     }
 }
